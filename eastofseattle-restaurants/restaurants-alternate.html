@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Food Service Inspections</title>
+
+    <script src="http://www.yh-r.com/scripts/lib/jquery/jquery-2.1.4.js"></script>
+    <script src="http://www.yh-r.com/scripts/lib/handlebars/handlebars-v4.0.4.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.11/css/dataTables.bootstrap.min.css"/>
+	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.0.2/css/responsive.bootstrap.min.css"/>
+	<script type="text/javascript" src="https://cdn.datatables.net/1.10.11/js/jquery.dataTables.min.js"></script>
+	<script type="text/javascript" src="https://cdn.datatables.net/1.10.11/js/dataTables.bootstrap.min.js"></script>
+	<script type="text/javascript" src="https://cdn.datatables.net/responsive/2.0.2/js/dataTables.responsive.min.js"></script>
+	<script type="text/javascript" src="https://cdn.datatables.net/responsive/2.0.2/js/responsive.bootstrap.min.js"></script>
+  <script type="text/javascript" src="http://www.yh-r.com/scripts/lib/pym/pym.min.js"></script>
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+
+    <style>
+    th.hide_me, td.hide_me {display:none;}
+    .facility {
+          font-weight:600;
+          text-transform: uppercase;
+      }
+    td.city {text-transform:uppercase; }
+
+    div.inspection_record {
+     border-top: 1px solid #ddd;
+     padding-top: 1em;
+   }
+
+   h2.panel-title{
+     font-size: 2em;
+     font-weight: 600;
+     margin-bottom: 0.5em;
+   }
+
+   .locator-list {
+            text-transform: uppercase;
+            font-size: 0.8em;
+            width: 50%;
+
+        }
+        div.inspection-record {
+            border-top: 1px solid #ddd;
+            padding-top: 1em;
+        }
+
+        .get-violations-button {margin-bottom: 10px;}
+
+        span.date {font-size: 1.2em;}
+        span.score {font-size: 1.2em;}
+        .inspection {font-size: 1.2em; display:block; width: 100%;}
+        .Unsatisfactory {color: #d9534f;}
+        .Satisfactory {color:green;}
+        .return-to-table {margin-top:20px;}
+        .red {background-color: #f2dede; color: #d9534f;}
+        .blue {background-color: #d9edf7; color: #31708f;}
+        span.points{display:block;}
+
+        @media (min-width: 768px) {
+          span.points {float:right;}
+        }
+
+        @media (max-width: 768px) {
+          span.inspection_details {font-size: 13px;}
+        }
+
+    </style>
+
+    <!-- Google Analytics -->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-1046893-21', 'auto');
+    ga('send', 'pageview');
+    </script>
+    <!-- End Google Analytics -->
+
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+          <div id="facilities_panel" class="panel panel-default">
+              <div class="panel-heading">
+                <h2 class="panel-title">Health Inspections</h2>
+                <form class="form-inline">
+                  <div class="form-group">
+                    <label for="filterByCity">Select a City</label>
+                    <select class="form-control" id="filterByCity">
+                      <!--<option value="" disabled selected>Select a City</option>-->
+                      <option value="ALGONA">ALGONA</option>
+                      <option value="AUBURN">AUBURN</option>
+                      <option value="BARING">BARING</option>
+                      <option value="BELLEVUE">BELLEVUE</option>
+                      <option value="BLACK DIAMOND">BLACK DIAMOND</option>
+                      <option value="BOTHELL">BOTHELL</option>
+                      <option value="BURIEN">BURIEN</option>
+                      <option value="CARNATION">CARNATION</option>
+                      <option value="CLYDE HILL">CLYDE HILL</option>
+                      <option value="COVINGTON">COVINGTON</option>
+                      <option value="DES MOINES">DES MOINES</option>
+                      <option value="DUVALL">DUVALL</option>
+                      <option value="ENUMCLAW">ENUMCLAW</option>
+                      <option value="EVERETT">EVERETT</option>
+                      <option value="FALL CITY">FALL CITY</option>
+                      <option value="FEDERAL WAY">FEDERAL WAY</option>
+                      <option value="HOBART">HOBART</option>
+                      <option value="ISSAQUAH">ISSAQUAH</option>
+                      <option value="KENMORE">KENMORE</option>
+                      <option value="KENT">KENT</option>
+                      <option value="KING COUNTY">KING COUNTY</option>
+                      <option value="KIRKLAND">KIRKLAND</option>
+                      <option value="LAKE FOREST PARK">LAKE FOREST PARK</option>
+                      <option value="LYNNWOOD">LYNNWOOD</option>
+                      <option value="MAPLE VALLEY">MAPLE VALLEY</option>
+                      <option value="MEDINA">MEDINA</option>
+                      <option value="MERCER ISLAND">MERCER ISLAND</option>
+                      <option value="MILTON">MILTON</option>
+                      <option value="MOUNTLAKE TERRACE">MOUNTLAKE TERRACE</option>
+                      <option value="MUKILTEO">MUKILTEO</option>
+                      <option value="NEWCASTLE">NEWCASTLE</option>
+                      <option value="NORMANDY PARK">NORMANDY PARK</option>
+                      <option value="NORTH BEND">NORTH BEND</option>
+                      <option value="OUT OF KING COUNTY">OUT OF KING COUNTY</option>
+                      <option value="PACIFIC">PACIFIC</option>
+                      <option value="PRESTON">PRESTON</option>
+                      <option value="RAVENSDALE">RAVENSDALE</option>
+                      <option value="REDMOND">REDMOND</option>
+                      <option value="RENTON">RENTON</option>
+                      <option value="SAMMAMISH">SAMMAMISH</option>
+                      <option value="SEATAC">SEATAC</option>
+                      <option value="SEA TAC">SEA TAC</option>
+                      <option value="SEATTLE">SEATTLE</option>
+                      <option value="SHORELINE">SHORELINE</option>
+                      <option value="SKYKOMISH">SKYKOMISH</option>
+                      <option value="SNOQUALMIE">SNOQUALMIE</option>
+                      <option value="SNOQUALMIE PASS">SNOQUALMIE PASS</option>
+                      <option value="TACOMA">TACOMA</option>
+                      <option value="TUKWILA">TUKWILA</option>
+                      <option value="VASHON">VASHON</option>
+                      <option value="VASHON ISLAND">VASHON ISLAND</option>
+                      <option value="WOODINVILLE">WOODINVILLE</option>
+                    </select>
+                    <a id="getCity" class="btn btn-primary" role="button">Go</a>
+                  </div>
+                </form>
+              </div>
+              <div class="panel-body">
+
+                <table id="facilities" class="table table-hover table-condensed" cellspacing="0" width="100%">
+                    <thead>
+                        <tr>
+                            <th class="hide_me">ID</th>
+                            <th class="all">Name</th>
+                            <th class="all"></th>
+                            <th class="min-tablet-p">Address</th>
+                            <th class="min-mobile-l">City</th>
+                        </tr>
+                    </thead>
+
+                </table>
+
+              </div><!--end panel-body-->
+          </div><!--end panel-->
+      </div><!--end row-->
+
+ <!--END TABLE ELEMENTS HTML, BEGIN DETAILS HTML-->
+
+    <div class="row" id="details_row">
+
+
+    </div><!--end row-->
+
+
+<!---END DETAIL VIEW HTML, Container is for both elements--->
+  </div><!--end container-->
+
+<script id="inspections-template" type="text/x-handlebars-template">
+
+  <div class="panel panel-default" id="details_panel">
+            <div class="panel-heading">
+                <div class="row">
+              <div class="col-sm-9">
+                  <h3>{{name}}</h3>
+                  <ul class="list-inline locator-list">
+                  <li>{{address}}</li>
+                  <li>{{city}}</li>
+                  </ul>
+              </div>
+                    <div class="col-sm-3">
+
+                    <a id="returnToTable" class="btn btn-default btn-lg btn-primary return-to-table" role="button">Back to Results</a>
+                    </div>
+
+                </div>
+            </div><!--end panel-heading-->
+            <div class="panel-body">
+                <div class="col-sm-12">
+                  <h3>Health Inspections</h3>
+                </div>
+                <div class="col-sm-12">
+                  <div class="col-sm-2 hidden-xs">
+                    <strong>Date</strong>
+                  </div>
+                  <div class="col-sm-1 hidden-xs">
+                    <strong>Score</strong>
+                  </div>
+                  <div class="col-sm-2 hidden-xs">
+                    <strong>Result</strong>
+                  </div>
+                  <div class="col-sm-3 hidden-xs">
+                    <strong>Type</strong>
+                  </div>
+                  <div class="col-sm-2">
+                  </div>
+                </div>
+
+                {{#inspections}}
+                <div class="col-xs-12 inspection-record">
+                    <div class="col-sm-2 col-xs-6">
+                    <p class="date">
+                      <span class="visible-xs"><strong>Date:</strong></span>
+                      <span class="inspection_details date">{{inspection_date}}</span>
+                    </p>
+                  </div>
+                  <div class="col-sm-1 col-xs-6">
+                    <p class="score">
+                      <span class="visible-xs"><strong>Score:</strong></span>
+                      <span class="inspection_details score">{{inspection_score}}</span>
+                    </p>
+                  </div>
+                  <div class="col-sm-2 col-xs-6">
+                    <p class="result">
+                      <span class="visible-xs"><strong>Result:</strong></span>
+                      <span class="inspection_details inspection {{inspection_result}}">{{inspection_result}}</span>
+                    </p>
+                  </div>
+
+                  <div class="col-sm-3 col-xs-6">
+                    <p class="type">
+                      <span class="visible-xs"><strong>Type:</strong></span>
+
+                      <span class="inspection_details inspection">{{inspection_type}}</span>
+                    </p>
+                  </div>
+                  <div class="col-sm-2">
+                  {{#violations}}
+
+                    <a id="{{inspection_serial_num}}" class="btn btn-default btn-xs btn-danger get-violations-button" role="button">Show Violations</a>
+                  {{/violations}}
+                </div>
+
+                </div><!--end inspection-record-->
+                {{/inspections}}
+              </div><!--end panel-body-->
+
+</script>
+
+<script id="violations-template" type="text/x-handlebars-template">
+
+  <ul class="list-group">
+    {{#violations}}
+      <li class="list-group-item {{violation_type}}">
+        {{violation_description}}<span class="points"><strong>Points: </strong> {{violation_points}}</span>
+      </li>
+    {{/violations}}
+  </ul>
+
+
+
+
+</script>
+
+
+<script type="text/javascript">
+
+
+
+$(document).ready(function( ){
+
+
+  $("#filterByCity").val("ISSAQUAH")
+  var baseURL = 'https://data.kingcounty.gov/resource/f29f-zza5.json?';
+  var filterCity = $("#filterByCity").val();
+  var queryParams = '$select=name,city,address,business_id&$group=business_id,name,city,address&$order=name&$where=city=' + "'" + filterCity + "'" + '&$limit=10000&$$app_token=XqjnZS9RYSz34XpV3LG027xSI';
+
+    /*var baseURL = 'https://data.kingcounty.gov/resource/f29f-zza5.json?'
+    var filterCity = $("#filterByCity").val()
+    var queryParams = '$select=name,city,address,business_id&$group=business_id,name,city,address&$order=:id&$where=city=' + "'" + filterCity + "'" + '&$$app_token=XqjnZS9RYSz34XpV3LG027xSI'*/
+
+    var facilitiesTable = $("#facilities").DataTable({
+            "responsive":true,
+            "drawCallback": function(){
+              pymChild.sendHeight();
+              ga('send', 'pageview', 'http://www.eastofseattle.news/news/inspections/');
+            },
+            "rowCallback": function( row, data, index ){
+              /*console.log(data.business_id)*/
+                $("a.get-details-btn", row).attr("id", data.business_id)
+            },
+
+            "ajax": {
+                "url": baseURL + queryParams,
+                "dataType": "json",
+                "dataSrc":"",
+                "cache": "true"
+            },
+            "columns": [
+                {
+                    "data":"business_id",
+                    "class": "hide_me"
+                },
+                {
+                    "data":"name",
+                    "class":"facility"
+                },
+                {
+                  "orderable": false,
+                  "data": null,
+                  "defaultContent": '<a class="btn btn-default btn-xs get-details-btn">View Details</a>'
+                },
+                {
+                  "data":"address",
+                  "class":"address",
+                  "defaultContent": "-"
+                },
+                {
+                  "data":"city",
+                  "class":"city"
+                }
+            ]
+        })
+
+        $("#facilities").on('click', '.get-details-btn', getDetails);
+
+        $('#getCity').click(function(){
+          filterCity = $("#filterByCity").val();
+          queryParams = '$select=name,city,address,business_id&$group=business_id,name,city,address&$order=name DESC&$where=city=' + "'" + filterCity + "'" + '&$limit=10000&$$app_token=XqjnZS9RYSz34XpV3LG027xSI';
+
+          var newDataURL = baseURL + queryParams;
+          var table = $('#facilities').DataTable()
+                          .clear()
+                          .ajax.url( newDataURL ).load();
+          ga('send', 'pageview', 'http://www.eastofseattle.news/news/inspections/')
+          });
+
+
+          function hideTable(){
+          	$("#facilitiesTable").css("display", "none");
+          };
+
+          function showTable(){
+          	$("#facilities_panel").css("display", "block");
+          	$("#details_row").css("display", "none");
+          };
+
+          function showDetailsPanel(){
+          	$("#details_row").css("display", "block")
+          	$("#facilities_panel").css("display", "none");
+          };
+
+
+
+          function getDetails(){
+          	/*console.log(this)*/
+            showDetailsPanel();
+          	var bizID = this.id
+            var restaurantName = $(this).parent().siblings( ".facility" ).html()
+            var restaurantAddress = $(this).parent().siblings( ".address" ).html()
+            var restaurantCity = $(this).parent().siblings( ".city" ).html()
+            var restaurantInfo = {"name": restaurantName, "address": restaurantAddress, "city": restaurantCity}
+            //console.log(restaurantName, restaurantAddress, restaurantCity)
+          	var appKey = "$$app_token=XqjnZS9RYSz34XpV3LG027xSI"
+          	var bizURL = "https://data.kingcounty.gov/resource/f29f-zza5.json?$select=inspection_serial_num,inspection_type,inspection_result,inspection_date,inspection_score&$group=inspection_serial_num,inspection_type,inspection_result,inspection_date,inspection_score&$where=business_id=%27" + bizID + "%27&" + appKey
+
+            $.ajax({
+          		dataType: "json",
+          		url: bizURL,
+          		success: function(data, status, jqXHR){
+                var inspectionsRecords = []
+                for (i = 0; i < data.length; i++){
+                    var inspection = {}
+                    var record = data[i]
+                    //console.log(record)
+                    var inspectionDate = record["inspection_date"]
+                    inspectionDate = inspectionDate.slice(0, -9)
+                    //console.log(inspectionDate)
+                    inspection["inspection_date"] = inspectionDate;
+                    inspection["inspection_result"] = record["inspection_result"]
+                    inspection["inspection_type"] = record["inspection_type"]
+                    inspection["inspection_score"] = record["inspection_score"]
+                    inspection["inspection_serial_num"] = record["inspection_serial_num"]
+                    inspection["violations"] = false
+                    if (record["inspection_score"] > 0 ){
+                      inspection["violations"] = true;
+                    }
+                    //console.log(inspection)
+                    inspectionsRecords.push(inspection)
+                }/*end loop*/
+                restaurantInfo["inspections"] = inspectionsRecords
+                var inspectionsScript = $("#inspections-template").html();
+                var inspectionsTemplate = Handlebars.compile(inspectionsScript);
+                $("#details_row").html(inspectionsTemplate(restaurantInfo))
+                $('.get-violations-button').on('click', getViolations);
+                //$("#details_row").on('click', '.get-violations-button', getViolations);
+                $("#details_row").on('click', '.return-to-table', showTable);
+
+                },/*end success handler*/
+              complete: function(){
+                pymChild.sendHeight();
+                ga('send', 'pageview', 'http://www.eastofseattle.news/news/inspections/');
+              }/*end completeHandler */
+              })/*end ajax call*/
+            };/*end getDetails function*/
+
+            function hideViolations(elementID){
+              //console.log(this)
+              $("div#" + elementID).remove()
+              $("a#" + elementID).on("click", getViolations)
+                .html("Show Violations")
+            }
+
+            function getViolations(){
+
+              var inspectionID = this.id;
+
+
+              //$(this).html("Hide Violations")
+              //$("#details_row").off('click', '.get-violations-button', getViolations)
+
+              var divString = "<div class='col-xs-12' id='" + inspectionID + "'></div>"
+              $(this).parent().parent().append(divString)
+              var appKey = "$$app_token=XqjnZS9RYSz34XpV3LG027xSI"
+              var violationURL =
+              "https://data.kingcounty.gov/resource/f29f-zza5.json?$select=violation_type,violation_description,violation_points&$where=inspection_serial_num=%27" + inspectionID + "%27&" + appKey
+
+              $.ajax({
+                dataType: "json",
+                url: violationURL,
+
+                success: function(data, status, jqXHR){
+                  var violationRecords = {"violations": data}
+                  var violationsScript = $("#violations-template").html();
+                  var violationsTemplate = Handlebars.compile(violationsScript);
+                  $("div#" + inspectionID ).html(violationsTemplate(violationRecords));
+                },
+                complete: function(){
+                  pymChild.sendHeight();
+                  ga('send', 'pageview', 'http://www.eastofseattle.news/news/inspections/')
+                }
+
+                })/*end ajax call*/
+                $(this).unbind('click').click(function(){
+                  hideViolations(inspectionID)
+                })
+                  .html('Hide Violations')
+
+
+              }/*end getViolations*/
+
+          });/*end document ready*/
+
+
+
+
+/*buildTable();
+*/
+</script>
+<script>
+	var pymChild = new pym.Child();
+</script>
+</body>
+</html>
