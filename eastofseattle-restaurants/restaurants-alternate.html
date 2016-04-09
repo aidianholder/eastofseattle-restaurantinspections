@@ -7,9 +7,13 @@
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <title>Food Service Inspections</title>
 
-    <script src="http://www.yh-r.com/scripts/lib/jquery/jquery-2.1.4.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/t/bs-3.3.6/jq-2.2.0,dt-1.10.11,r-2.0.2/datatables.min.css"/>
+
+    <script type="text/javascript" src="https://cdn.datatables.net/t/bs-3.3.6/jq-2.2.0,dt-1.10.11,r-2.0.2/datatables.min.js"></script>
+
+    <!--<script src="http://www.yh-r.com/scripts/lib/jquery/jquery-2.1.4.js"></script>-->
     <script src="http://www.yh-r.com/scripts/lib/handlebars/handlebars-v4.0.4.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+    <!--<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
 
    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 
@@ -18,7 +22,7 @@
 	<script type="text/javascript" src="https://cdn.datatables.net/1.10.11/js/jquery.dataTables.min.js"></script>
 	<script type="text/javascript" src="https://cdn.datatables.net/1.10.11/js/dataTables.bootstrap.min.js"></script>
 	<script type="text/javascript" src="https://cdn.datatables.net/responsive/2.0.2/js/dataTables.responsive.min.js"></script>
-	<script type="text/javascript" src="https://cdn.datatables.net/responsive/2.0.2/js/responsive.bootstrap.min.js"></script>
+	<script type="text/javascript" src="https://cdn.datatables.net/responsive/2.0.2/js/responsive.bootstrap.min.js"></script>-->
   <script type="text/javascript" src="http://www.yh-r.com/scripts/lib/pym/pym.min.js"></script>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -74,7 +78,7 @@
           span.points {float:right;}
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 480px) {
           span.inspection_details {font-size: 13px;}
         }
 
@@ -309,6 +313,7 @@ $(document).ready(function( ){
             "drawCallback": function(){
               pymChild.sendHeight();
               ga('send', 'pageview', 'http://www.eastofseattle.news/news/inspections/');
+              console.log('drawCallback')
             },
             "rowCallback": function( row, data, index ){
               /*console.log(data.business_id)*/
@@ -358,21 +363,33 @@ $(document).ready(function( ){
                           .clear()
                           .ajax.url( newDataURL ).load();
           ga('send', 'pageview', 'http://www.eastofseattle.news/news/inspections/')
+          console.log('getCity fired')
           });
 
 
+          function fitHeight(){
+            pymChild.sendHeight();
+          }
+
           function hideTable(){
-          	$("#facilitiesTable").css("display", "none");
+          	$("#facilitiesTable").hide()
+            /*.css("display", "none");*/
           };
 
           function showTable(){
-          	$("#facilities_panel").css("display", "block");
-          	$("#details_row").css("display", "none");
+          	$("#facilities_panel").show(fitHeight)
+            /*.css("display", "block");*/
+          	$("#details_row").hide()
+            /*.css("display", "none");*/
+
           };
 
           function showDetailsPanel(){
-          	$("#details_row").css("display", "block")
-          	$("#facilities_panel").css("display", "none");
+          	$("#details_row").show(fitHeight);
+            /*.css("display", "block")*/
+          	$("#facilities_panel").hide();
+            /*.css("display", "none");*/
+            /*pymChild.sendHeight();*/
           };
 
 
@@ -425,7 +442,8 @@ $(document).ready(function( ){
               complete: function(){
                 pymChild.sendHeight();
                 ga('send', 'pageview', 'http://www.eastofseattle.news/news/inspections/');
-              }/*end completeHandler */
+                console.log('getDetails complete')
+                }/*end completeHandler */
               })/*end ajax call*/
             };/*end getDetails function*/
 
@@ -463,6 +481,7 @@ $(document).ready(function( ){
                 complete: function(){
                   pymChild.sendHeight();
                   ga('send', 'pageview', 'http://www.eastofseattle.news/news/inspections/')
+                  console.log('getViolations complete')
                 }
 
                 })/*end ajax call*/
