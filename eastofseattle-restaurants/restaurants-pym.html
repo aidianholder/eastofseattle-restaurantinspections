@@ -166,7 +166,7 @@
                             <th class="all">Name</th>
                             <th class="all"></th>
                             <th class="min-tablet-p">Address</th>
-                            <th class="min-mobile-l">City</th>
+                            <th class="min-mobile-l">Last Inspection</th>
                         </tr>
                     </thead>
 
@@ -220,6 +220,9 @@
                   <div class="col-sm-2 hidden-xs">
                     <strong>Result</strong>
                   </div>
+                  <div class="col-sm-2 hidden-xs">
+                      <strong>Closed</strong>
+                    </div>
                   <div class="col-sm-3 hidden-xs">
                     <strong>Type</strong>
                   </div>
@@ -245,6 +248,14 @@
                     <p class="result">
                       <span class="visible-xs"><strong>Result:</strong></span>
                       <span class="inspection_details inspection {{inspection_result}}">{{inspection_result}}</span>
+                    </p>
+                  </div>
+                  <div class="col-sm-2">
+                    <p>
+                    <span class="visible-xs"><strong>Closure:</strong></span>
+                    {{#inspection_closed_business}}
+                      <span class="label label-danger">Closed</span>
+                    {{/inspection_closed_business}}
                     </p>
                   </div>
 
@@ -295,7 +306,7 @@ $(document).ready(function( ){
   var filterCity = $("#filterByCity").val();
   var filterCityTitleCase = filterCity.slice(0, 1).toUpperCase() + filterCity.slice(1).toLowerCase()
   console.log(filterCityTitleCase)
-  var queryParams = '$select=program_identifier,city,address,business_id&$group=business_id,program_identifier,city,address&$order=program_identifier&$where=city=' + "'" + filterCity + "'" + 'or city=' + "'" + filterCityTitleCase + "'" + '&$limit=10000&$$app_token=XqjnZS9RYSz34XpV3LG027xSI';
+  var queryParams = '$select=program_identifier,city,address,business_id,max(inspection_date) as latest&$group=business_id,program_identifier,city,address&$having=latest>"2006-01-01T00:00:00.000"&$order=latest DESC&$where=city=' + "'" + filterCity + "'" + 'or city=' + "'" + filterCityTitleCase + "'" + '&$limit=10000&$$app_token=XqjnZS9RYSz34XpV3LG027xSI';
 
     /*var baseURL = 'https://data.kingcounty.gov/resource/f29f-zza5.json?'
     var filterCity = $("#filterByCity").val()
@@ -337,10 +348,14 @@ $(document).ready(function( ){
                   "class":"address"
                 },
                 {
-                  "data":"city",
-                  "class":"city"
+                  "data":"latest",
+                  "class":"city",
+                  "render": function(data){
+                    return data.slice(0,10);
+                  }
                 }
-            ]
+            ],
+            "order":  [[4, 'desc']]
         })
 
         $("#facilities").on('click', '.get-details-btn', getDetails);
@@ -350,7 +365,7 @@ $(document).ready(function( ){
           var filterCityTitleCase = filterCity.slice(0, 1).toUpperCase() + filterCity.slice(1).toLowerCase()
           //queryParams = '$select=program_identifier,city,address,business_id&$group=business_id,program_identifier,city,address&$order=program_identifier DESC&$where=city=' + "'" + filterCity + "'" + '&$limit=10000&$$app_token=XqjnZS9RYSz34XpV3LG027xSI';
 
-          queryParams = '$select=program_identifier,city,address,business_id&$group=business_id,program_identifier,city,address&$order=program_identifier&$where=city=' + "'" + filterCity + "'" + 'or city=' + "'" + filterCityTitleCase + "'" + '&$limit=10000&$$app_token=XqjnZS9RYSz34XpV3LG027xSI';
+          var queryParams = '$select=program_identifier,city,address,business_id,max(inspection_date) as latest&$group=business_id,program_identifier,city,address&$having=latest>"2006-01-01T00:00:00.000"&$order=latest DESC&$where=city=' + "'" + filterCity + "'" + 'or city=' + "'" + filterCityTitleCase + "'" + '&$limit=10000&$$app_token=XqjnZS9RYSz34XpV3LG027xSI';
 
 
           var newDataURL = baseURL + queryParams;
@@ -383,11 +398,11 @@ $(document).ready(function( ){
           	var bizID = this.id
             var restaurantName = $(this).parent().siblings( ".facility" ).html()
             var restaurantAddress = $(this).parent().siblings( ".address" ).html()
-            var restaurantCity = $(this).parent().siblings( ".city" ).html()
+            var restaurantCity = $("#filterByCity").val()
             var restaurantInfo = {"name": restaurantName, "address": restaurantAddress, "city": restaurantCity}
             //console.log(restaurantName, restaurantAddress, restaurantCity)
           	var appKey = "$$app_token=XqjnZS9RYSz34XpV3LG027xSI"
-          	var bizURL = "https://data.kingcounty.gov/resource/f29f-zza5.json?$select=inspection_serial_num,inspection_type,inspection_result,inspection_date,inspection_score&$group=inspection_serial_num,inspection_type,inspection_result,inspection_date,inspection_score&$order=inspection_date DESC&$where=business_id=%27" + bizID + "%27&" + appKey
+          	var bizURL = "https://data.kingcounty.gov/resource/f29f-zza5.json?$select=inspection_serial_num,inspection_type,inspection_result,inspection_date,inspection_score,inspection_closed_business&$group=inspection_serial_num,inspection_type,inspection_result,inspection_date,inspection_score,inspection_closed_business&$order=inspection_date DESC&$where=business_id=%27" + bizID + "%27&" + appKey
 
             $.ajax({
           		dataType: "json",
@@ -399,18 +414,22 @@ $(document).ready(function( ){
                     var record = data[i]
                     //console.log(record)
                     var inspectionDate = record["inspection_date"]
-                    inspectionDate = inspectionDate.slice(0, -9)
+                    inspectionDate = inspectionDate.slice(0, 10)
                     //console.log(inspectionDate)
                     inspection["inspection_date"] = inspectionDate;
                     inspection["inspection_result"] = record["inspection_result"]
                     inspection["inspection_type"] = record["inspection_type"]
                     inspection["inspection_score"] = record["inspection_score"]
                     inspection["inspection_serial_num"] = record["inspection_serial_num"]
+                    if (record["inspection_closed_business"] == true){
+                      inspection["inspection_closed_business"] = true;
+                    } else {inspection["inspection_closed_business"] = null}
+                    //inspection["inspection_closed_business"] = record["inspection_closed_business"]
                     inspection["violations"] = false
                     if (record["inspection_score"] > 0 ){
                       inspection["violations"] = true;
                     }
-                    //console.log(inspection)
+                    console.log(inspection)
                     inspectionsRecords.push(inspection)
                 }/*end loop*/
                 restaurantInfo["inspections"] = inspectionsRecords

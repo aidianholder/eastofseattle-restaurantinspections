@@ -1,0 +1,49 @@
+
+    th.hide_me, td.hide_me {display:none;}
+    .facility {
+          font-weight:700;
+          text-transform: uppercase;
+      }
+    td.city {text-transform:uppercase; }
+
+    div.inspection_record {
+     border-top: 1px solid #ddd;
+     padding-top: 1em;
+   }
+
+   h2.panel-title{
+     font-size: 2em;
+     font-weight: 600;
+     margin-bottom: 0.5em;
+   }
+
+   .locator-list {
+            text-transform: uppercase;
+            font-size: 0.8em;
+            width: 50%;
+
+        }
+        div.inspection-record {
+            border-top: 1px solid #ddd;
+            padding-top: 1em;
+        }
+
+        .get-violations-button {margin-bottom: 10px;}
+
+        span.date {font-size: 1.2em;}
+        span.score {font-size: 1.2em;}
+        .inspection {font-size: 1.2em; display:block; width: 100%;}
+        .Unsatisfactory {color: #d9534f;}
+        .Satisfactory {color:green;}
+        .return-to-table {margin-top:20px;}
+        .red {background-color: #f2dede; color: #d9534f;}
+        .blue {background-color: #d9edf7; color: #31708f;}
+        span.points{display:block;}
+
+        @media (min-width: 768px) {
+          span.points {float:right;}
+        }
+
+        @media (max-width: 768px) {
+          span.inspection_details {font-size: 13px;}
+        }
